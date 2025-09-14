@@ -1,0 +1,53 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: event-pipeline-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: testpass
+      MYSQL_DATABASE: eventdb
+    ports:
+      - '3306:3306'
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+  mysql-init:
+    image: mysql:8.0
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: |
+      mysql -h mysql -uroot -ptestpass eventdb -e "
+      CREATE TABLE IF NOT EXISTS processed_events (
+       id VARCHAR(36) PRIMARY KEY,
+       type ENUM('user_action', 'sensor_data', 'system_log') NOT NULL,
+       source VARCHAR(50) NOT NULL,
+       user_id VARCHAR(50),
+       processed_data JSON,
+       processing_time_ms INT,
+       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+       processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+       INDEX idx_type_created (type, created_at),
+       INDEX idx_user_created (user_id, created_at)
+      );"
+    restart: no
+  event-pipeline-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: event-pipeline-app
+    depends_on:
+      mysql:
+        condition: service_healthy
+      mysql-init:
+        condition: service_completed_successfully
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: testpass
+      MYSQL_DATABASE: eventdb
+      WORKER_COUNT: 4
+      LOG_MODE: dev
+    ports:
+      - "8080:8080"

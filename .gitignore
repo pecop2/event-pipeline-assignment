@@ -1,0 +1,49 @@
+# Binaries
+/bin/
+/event-pipeline
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Build output
+*.out
+
+# Go workspace
+*.test
+*.log
+*.prof
+*.cover
+*.cov
+*.tmp
+
+# IDE/editor junk
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+
+# Dependency directories (if any vendored)
+vendor/
+
+# Docker / Compose
+.env
+docker-compose.override.yml
+
+# Coverage reports
+coverage.*
+*.coverprofile
+
+# Local MySQL data (if mounted in compose)
+mysql_data/
+
+# Logs
+logs/
+*.log
+
+# Cache
+.cache/
