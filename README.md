@@ -117,6 +117,5 @@ Example:
 - **Graceful Shutdown**: Uses context cancellation + wait groups to drain queue safely.
 - **Configuration**: Managed via environment variables (`config.Config`).
 - **Logging**: Structured logging with Zap for observability.
-- **MySQL Schema**: Optimized with indexes on `type+created_at` and `user_id+created_at` for query performance.
 
 ---
